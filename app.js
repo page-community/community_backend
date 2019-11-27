@@ -5,28 +5,17 @@ const http = require("http").createServer(app);
 const bodyParser = require("body-parser");
 const firebase = require("firebase");
 const dateFormat = require("dateformat");
+const { config } = require("./config");
 
 app.use(bodyParser.urlencoded());
 app.use(bodyParser.json());
 app.use(cors());
-
-const config = {
-   apiKey: "AIzaSyC46Gpvx2eiYWZMoTpRS6bvwcWmGW6taiM",
-   authDomain: "community-b365f.firebaseapp.com",
-   databaseURL: "https://community-b365f.firebaseio.com",
-   projectId: "community-b365f",
-   storageBucket: "community-b365f.appspot.com",
-   messagingSenderId: "736742194944",
-   appId: "1:736742194944:web:6f26ad1e4c95c6862b7de5",
-   measurementId: "G-PBYT84HWSY"
-};
 
 firebase.initializeApp(config);
 
 const db = firebase.firestore();
 
 http.listen(4000, () => {
-   console.log(dateFormat(new Date(), "yyyy-mm-dd"));
    console.log("server on");
 });
 
@@ -57,7 +46,7 @@ app.get("/boards", (req, res) => {
          res.status(200).send(rows);
       })
       .catch(err => {
-         console.log("error");
+         console.log(err);
       });
 });
 
