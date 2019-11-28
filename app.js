@@ -33,8 +33,25 @@ app.get("/board/:id", (req, res) => {
       });
 });
 
-app.get("/boards", (req, res) => {
+app.get("/boards/count", (req, res) => {
    db.collection("boards")
+      .get()
+      .then(snapshot => {
+         const size = snapshot.size;
+         res.status(200).send({ size });
+      })
+      .catch(err => {
+         console.log(err);
+      });
+});
+
+app.get("/boards/:page", (req, res) => {
+   const page = req.params.page;
+
+   db.collection("boards")
+      .orderBy("date")
+
+      .limit(3)
       .get()
       .then(snapshot => {
          let rows = [];
