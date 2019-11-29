@@ -50,8 +50,7 @@ app.get("/boards/:page", (req, res) => {
 
    db.collection("boards")
       .orderBy("date")
-
-      .limit(3)
+      .limit(12)
       .get()
       .then(snapshot => {
          let rows = [];
@@ -63,6 +62,53 @@ app.get("/boards/:page", (req, res) => {
          res.status(200).send(rows);
       })
       .catch(err => {
+         console.log(err);
+      });
+});
+
+app.post("/email", (req, res) => {
+   const { email, password } = req.body;
+   firebase
+      .auth()
+      .createUserWithEmailAndPassword(email, password)
+      .then(user => {
+         firebase
+            .auth()
+            .currentUser.sendEmailVerification()
+            .then(res => {
+               console.log(res);
+            })
+            .catch(err => {
+               console.error(err);
+            });
+      })
+      .catch(err => {
+         console.error(err);
+      });
+});
+
+app.post("/login", (req, res) => {
+   const { email, password } = req.body;
+   firebase
+      .auth()
+      .signInWithEmailAndPassword(email, password)
+      .then(user => {
+         const emailVerified = user.user.emailVerified;
+         if (!emailVerified)
+            res.status(401).send("메일을 통해 인증을 해주세요.");
+         else res.status(200).send("로그인 성공");
+      })
+      .catch(err => {
+         switch (err.code) {
+            case "auth/wrong-password":
+               res.status(400).send("비밀번호를 다시 확인해주세요.");
+               return;
+            case "auth/user-not-found":
+               res.status(400).send("이메일을 다시 확인해주세요.");
+               return;
+            default:
+               res.status(400).send("알수 없는 에러가 발생했습니다.");
+         }
          console.log(err);
       });
 });
